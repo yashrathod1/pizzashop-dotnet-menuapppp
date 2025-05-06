@@ -120,7 +120,10 @@ public class TableRepository : ITableRepository
 
     public async Task<int?> GetOrderIdByTableIdAsync(int tableId)
     {
-        var mapping = await _context.OrdersTableMappings.Where( o => o.Tableid == tableId).FirstOrDefaultAsync();
+        var mapping = await _context.OrdersTableMappings
+            .Where(o => o.Tableid == tableId && o.Order.Status != "Completed")
+            .FirstOrDefaultAsync();
+
         return mapping?.Orderid;
     }
 

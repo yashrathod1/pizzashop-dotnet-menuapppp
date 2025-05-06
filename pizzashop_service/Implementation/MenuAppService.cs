@@ -455,7 +455,7 @@ public class MenuAppService : IMenuAppService
     public async Task<MenuAppOrderViewModel?> GetOrderCommentById(int orderId)
     {
         var order = await _menuAppRepository.GetOrderById(orderId);
-        if(order == null) return null;
+        if (order == null) return null;
 
         return new MenuAppOrderViewModel
         {
@@ -466,11 +466,60 @@ public class MenuAppService : IMenuAppService
     public async Task<bool> UpdateOrderComment(MenuAppOrderViewModel model)
     {
         var order = await _menuAppRepository.GetOrderById(model.Id);
-        if(order == null) return false;
+        if (order == null) return false;
 
         order.Comment = model.OrderComment;
 
         return await _menuAppRepository.UpdateOrderAsync(order);
     }
+
+    public async Task<(bool Success, string Message)> CompleteOrderAsync(int orderId)
+    {
+        var order = await _menuAppRepository.GetOrderById(orderId);
+        if (order == null)
+            return (false, "Order not found");
+
+        // Get order items
+        var orderItems = await _menuAppRepository.GetOrderItemListByOrderIdAsync(orderId);
+        if (orderItems == null || orderItems.Count == 0)
+            return (false, "No items found for this order");
+
+        var notReadyItems = orderItems.Where(x => x.Preparedquantity < x.Quantity).ToList();
+        if (notReadyItems.Any())
+            return (false, "All items must be served before completing the orders");
+
+        order.Status = "Completed";
+        await _menuAppRepository.UpdateOrderAsync(order);
+
+        var table = await _menuAppRepository.GetTableByOrderId(orderId);
+        if (table != null)
+        {
+            table.Status = "Available";
+            await _menuAppRepository.UpdateTableAsync(table);
+        }
+
+        var payment = await _menuAppRepository.GetPaymentByOrderIdAsync(orderId);
+        if (payment != null)
+        {
+            payment.PaymentStatus = true;
+            await _menuAppRepository.UpdatePaymentInfoAsync(payment);
+        }
+
+        return (true, "Order completed successfully");
+    }
+
+    public async Task<MenuAppOrderViewModel?> GetOrderStatusAsync(int orderId)
+    {
+        var order = await _menuAppRepository.GetOrderById(orderId);
+        if (order == null) return null;
+
+        return new MenuAppOrderViewModel
+        {
+            Status = order.Status
+        };
+    }
+
+
+
 }
 

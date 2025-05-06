@@ -37,7 +37,7 @@ public class TableService : ITableService
                 SectionId = t.Sectionid,
                 Capacity = t.Capacity,
                 Status = t.Status,
-                OrderTableTime = t.OrdersTableMappings.Select(ot => ot.Order.Createdat).FirstOrDefault(),
+                OrderTableTime = t.OrdersTableMappings.Where(ot => ot.Order.Status != "Completed").Select(ot => ot.Order.Createdat ).FirstOrDefault(),
                 TotalAmount = t.OrdersTableMappings.Select(ot => ot.Order.Totalamount).FirstOrDefault(),
             }).ToList(),
         };

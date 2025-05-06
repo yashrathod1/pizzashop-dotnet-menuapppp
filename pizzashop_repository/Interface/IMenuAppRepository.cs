@@ -62,5 +62,7 @@ public interface IMenuAppRepository
 
      Task<bool> UpdateCustomerAsync(Customer customer);
 
+     Task<List<OrderItemsMapping>> GetOrderItemListByOrderIdAsync(int orderId);
+
      //  Task<Order?> GetOrderByIdAsync(int orderId);
 }

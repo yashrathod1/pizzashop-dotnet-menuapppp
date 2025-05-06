@@ -174,7 +174,7 @@ public class MenuAppController : Controller
             var result = await _menuAppService.UpdateOrderComment(model);
             if (result)
             {
-                return Json(new { success = true, message = "Order Comment Edited successfully."});
+                return Json(new { success = true, message = "Order Comment Edited successfully." });
             }
             else
             {
@@ -186,5 +186,28 @@ public class MenuAppController : Controller
             throw new Exception("Error in Adding Comment", ex);
         }
     }
+
+    [HttpPost]
+    public async Task<IActionResult> CompleteOrder(int orderId)
+    {
+        try
+        {
+            var (success, message) = await _menuAppService.CompleteOrderAsync(orderId);
+            return Json(new { success, message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new { success = false, message = "An error occurred while completing the order." });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetOrderStatus(int orderId)
+    {
+        var result = await _menuAppService.GetOrderStatusAsync(orderId);
+        return Json(result);
+    }
+
+
 
 }

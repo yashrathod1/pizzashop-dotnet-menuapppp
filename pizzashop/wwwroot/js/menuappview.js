@@ -8,11 +8,10 @@ $(document).ready(function () {
 
     var orderId = $('#orderId').val();
 
-
     LoadItems("all")
     fetchTableInfo(orderId);
     if (orderId > 0) {
-        loadOrderDetails(orderId);
+        LoadOrderBasedOnStatus(orderId);
     }
 
     $('.category-item').on('click', function () {
@@ -33,6 +32,27 @@ $(document).ready(function () {
         LoadItems(selectedType, selectedCategory, searchTerm);
     });
 });
+
+function LoadOrderBasedOnStatus(orderId)
+{
+        $.ajax({
+            url: '/MenuApp/GetOrderStatus',
+            type: 'GET',
+            data: { orderId: orderId },
+            success: function (response) {
+                if (response.status === "Completed") {
+                    loadOrderDetails(orderId);
+                    $('#saveBtn, #completeBtn, #cancelBtn').hide();
+                } else if (response.status === "Pending" || response.status === "In Progress"){
+                    loadOrderDetails(orderId);
+                    $('#saveBtn, #completeBtn, #cancelBtn').show();
+                }
+            },
+            error: function () {
+                toastr.error("Failed to fetch order status.");
+            }
+        });    
+}
 
 function LoadItems(type, categoryId, searchTerm = '') {
     $.ajax({
@@ -598,4 +618,27 @@ $(document).on('click', '#saveOrderComment', function () {
 
 $(document).on('click', '.order-row', function(){
     $('#SpecialInstruction').modal('show');
+});
+
+// complete order
+
+$(document).on('click', '#completeBtn', function () {
+    var orderId = parseInt(getOrderIdFromUrl());
+
+    $.ajax({
+        type: 'POST',
+        url: '/MenuApp/CompleteOrder',
+        data: { orderId: orderId },
+        success: function (response) {
+            if (response.success) {
+                toastr.success(response.message);
+                $('#completeBtn').prop('disabled', true);
+            } else {
+                toastr.error(response.message);
+            }
+        },
+        error: function () {
+            toastr.error("An unexpected error occurred.");
+        }
+    });
 });

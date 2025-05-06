@@ -44,4 +44,6 @@ public class MenuAppOrderViewModel
 {   
     public int Id { get; set; }
     public string? OrderComment { get; set ;} 
+
+    public string? Status { get; set; }
 }

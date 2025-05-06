@@ -399,6 +399,18 @@ public class MenuAppRepository : IMenuAppRepository
         }
     }
 
+    public async Task<List<OrderItemsMapping>> GetOrderItemListByOrderIdAsync(int orderId)
+    {
+        try
+        {
+            return await _context.OrderItemsMappings.Where(oi => oi.Orderid == orderId && !oi.Isdeleted).ToListAsync();
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     // public async Task<Order?> GetOrderByIdAsync(int orderId)
     // {
     //     try

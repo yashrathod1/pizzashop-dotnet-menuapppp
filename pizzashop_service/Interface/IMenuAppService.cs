@@ -30,4 +30,8 @@ public interface IMenuAppService
 
       Task<bool> UpdateOrderComment(MenuAppOrderViewModel model);
 
+      Task<(bool Success, string Message)> CompleteOrderAsync(int orderId);
+
+      Task<MenuAppOrderViewModel?> GetOrderStatusAsync(int orderId);
+
 }
